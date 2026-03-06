@@ -1253,7 +1253,84 @@
   .booster-metrics,
   .spawner-actions,
   .spawner-slots {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .shop-card,
+  .booster-card,
+  .egg-card,
+  .spawner-slot-card {
+    gap: 8px;
+    padding: 12px;
+    border-radius: 18px;
+  }
+
+  .shop-card h3,
+  .booster-card h3,
+  .egg-card strong,
+  .spawner-slot-card b {
+    font-size: 0.9rem;
+    line-height: 1.08;
+  }
+
+  .shop-card p,
+  .booster-card p,
+  .egg-card-top span,
+  .egg-card-bottom small,
+  .spawner-slot-card small,
+  .spawner-slot-card > span {
+    font-size: 0.72rem;
+    line-height: 1.2;
+  }
+
+  .shop-icon,
+  .booster-icon {
+    width: 44px;
+    border-radius: 12px;
+  }
+
+  .shop-icon img,
+  .booster-icon img {
+    width: 28px;
+    height: 28px;
+  }
+
+  .shop-card-top,
+  .booster-card-top,
+  .egg-card-top {
+    gap: 8px;
+  }
+
+  .shop-metrics,
+  .booster-metrics {
+    gap: 6px;
+  }
+
+  .shop-metrics div,
+  .booster-metrics div {
+    padding: 8px;
+    border-radius: 12px;
+  }
+
+  .shop-metrics strong,
+  .booster-metrics strong {
+    margin-top: 4px;
+    font-size: 0.88rem;
+  }
+
+  .buy-button,
+  .egg-card button,
+  .spawner-slot-card button {
+    min-height: 44px;
+    padding: 0 10px;
+    border-radius: 14px;
+    font-size: 0.82rem;
+  }
+
+  .buy-button img {
+    width: 18px;
+    height: 18px;
   }
 
   .hud-tab {
