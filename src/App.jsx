@@ -582,6 +582,7 @@ function App() {
   const [toasts, setToasts] = useState([])
   const [celebrationFarm, setCelebrationFarm] = useState('')
   const [cloudReady, setCloudReady] = useState(false)
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const balanceBadgeRef = useRef(null)
   const collectButtonRef = useRef(null)
   const treasureButtonRef = useRef(null)
@@ -1113,7 +1114,18 @@ function App() {
             <strong>Golden Farm</strong>
             <span className="hud-username">{profileName}</span>
           </div>
-          <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
+          <div className="hud-brand-actions">
+            {isAdmin ? (
+              <button
+                className={showAdminPanel ? 'admin-entry is-active' : 'admin-entry'}
+                onClick={() => setShowAdminPanel((current) => !current)}
+                type="button"
+              >
+                Админ
+              </button>
+            ) : null}
+            <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
+          </div>
         </div>
 
         <div className="hud-summary">
@@ -1167,7 +1179,7 @@ function App() {
         </div>
       </header>
 
-      {isAdmin ? (
+      {isAdmin && showAdminPanel ? (
         <section className="panel admin-panel">
           <div className="admin-panel-head">
             <div>
