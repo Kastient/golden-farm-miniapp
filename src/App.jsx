@@ -6,7 +6,9 @@ const TREASURE_COOLDOWN_SECONDS = 180
 const EGG_HUNT_COOLDOWN_SECONDS = 55
 const SPAWNER_SLOT_COUNT = 3
 const MAX_SPAWNER_POWER_LEVEL = 12
-const STORAGE_NAMESPACE = 'minecraft-farm-miniapp-v2'
+const LOCAL_STORAGE_KEY = 'golden-farm-local-v3'
+const CLOUD_STORAGE_KEY = 'golden_farm_state_v3'
+const ADMIN_TELEGRAM_ID = 6037580694
 const DEFAULT_USERNAME = 'UserName телеграмм'
 
 const CATEGORIES = [
@@ -434,6 +436,11 @@ const createDefaultState = () => ({
   lastUpdatedAt: Date.now(),
 })
 
+const createDefaultStateForCurrentUser = () => ({
+  ...createDefaultState(),
+  username: detectTelegramUsername() || DEFAULT_USERNAME,
+})
+
 const formatTimer = (seconds) => {
   const safe = Math.max(0, Math.floor(seconds))
   const hours = Math.floor(safe / 3600)
@@ -470,87 +477,77 @@ const detectTelegramUsername = () => {
   return [user.first_name, user.last_name].filter(Boolean).join(' ')
 }
 
-const getStorageKey = () => {
-  const user = getTelegramUser()
-  if (user?.id) {
-    return `${STORAGE_NAMESPACE}:tg:${user.id}`
+const getCloudStorage = () => {
+  if (typeof window === 'undefined') {
+    return null
   }
 
-  if (user?.username) {
-    return `${STORAGE_NAMESPACE}:user:${String(user.username).toLowerCase()}`
+  return window.Telegram?.WebApp?.CloudStorage ?? null
+}
+
+const buildHydratedState = (parsed, fallback, now = Date.now()) => {
+  const farms = createFarmState()
+  const eggInventory = sanitizeEggInventory(parsed?.eggInventory)
+  const spawnerSlots = sanitizeSpawnerSlots(parsed?.spawnerSlots)
+
+  for (const farm of FARM_CATALOG) {
+    const count = Number(parsed?.farms?.[farm.id] ?? 0)
+    farms[farm.id] = Number.isFinite(count)
+      ? Math.min(MAX_FARMS_PER_TYPE, Math.max(0, Math.floor(count)))
+      : 0
   }
 
-  return `${STORAGE_NAMESPACE}:local`
+  const lastUpdatedAt = Number(parsed?.lastUpdatedAt ?? now)
+  const activeBoosts = sanitizeActiveBoosts(parsed?.activeBoosts, now)
+  const spawnerPowerLevel = Math.min(
+    MAX_SPAWNER_POWER_LEVEL,
+    Math.max(1, Math.floor(Number(parsed?.spawnerPowerLevel ?? 1))),
+  )
+  const offlineIncome = getIncomeForPeriod(
+    farms,
+    spawnerSlots,
+    spawnerPowerLevel,
+    activeBoosts,
+    lastUpdatedAt,
+    now,
+  )
+
+  return {
+    username: detectTelegramUsername() || parsed?.username || fallback.username,
+    balance: Math.max(0, Number(parsed?.balance ?? fallback.balance)),
+    pendingIncome: roundToTenth(Math.max(0, Number(parsed?.pendingIncome ?? 0)) + offlineIncome),
+    lifetimeCollected: Math.max(0, Number(parsed?.lifetimeCollected ?? 0)),
+    farms,
+    eggInventory,
+    spawnerSlots,
+    nextEggHuntAt: Math.max(now, Number(parsed?.nextEggHuntAt ?? now)),
+    eggHunts: Math.max(0, Number(parsed?.eggHunts ?? 0)),
+    spawnerPowerLevel,
+    activeBoosts,
+    nextTreasureAt: Math.max(now, Number(parsed?.nextTreasureAt ?? now)),
+    treasureOpens: Math.max(0, Number(parsed?.treasureOpens ?? 0)),
+    lastUpdatedAt: now,
+  }
 }
 
 const hydrateState = () => {
-  const fallback = createDefaultState()
+  const fallback = createDefaultStateForCurrentUser()
 
   if (typeof window === 'undefined') {
     return fallback
   }
 
   try {
-    const storageKey = getStorageKey()
-    const raw =
-      window.localStorage.getItem(storageKey) ?? window.localStorage.getItem(STORAGE_NAMESPACE)
+    const raw = window.localStorage.getItem(LOCAL_STORAGE_KEY)
 
     if (!raw) {
-      return {
-        ...fallback,
-        username: detectTelegramUsername() || DEFAULT_USERNAME,
-      }
+      return fallback
     }
 
     const parsed = JSON.parse(raw)
-    const farms = createFarmState()
-    const eggInventory = sanitizeEggInventory(parsed?.eggInventory)
-    const spawnerSlots = sanitizeSpawnerSlots(parsed?.spawnerSlots)
-
-    for (const farm of FARM_CATALOG) {
-      const count = Number(parsed?.farms?.[farm.id] ?? 0)
-      farms[farm.id] = Number.isFinite(count)
-        ? Math.min(MAX_FARMS_PER_TYPE, Math.max(0, Math.floor(count)))
-        : 0
-    }
-
-    const now = Date.now()
-    const lastUpdatedAt = Number(parsed?.lastUpdatedAt ?? now)
-    const activeBoosts = sanitizeActiveBoosts(parsed?.activeBoosts, now)
-    const spawnerPowerLevel = Math.min(
-      MAX_SPAWNER_POWER_LEVEL,
-      Math.max(1, Math.floor(Number(parsed?.spawnerPowerLevel ?? 1))),
-    )
-    const offlineIncome = getIncomeForPeriod(
-      farms,
-      spawnerSlots,
-      spawnerPowerLevel,
-      activeBoosts,
-      lastUpdatedAt,
-      now,
-    )
-
-    return {
-      username: parsed?.username || detectTelegramUsername() || DEFAULT_USERNAME,
-      balance: Math.max(0, Number(parsed?.balance ?? fallback.balance)),
-      pendingIncome: roundToTenth(Math.max(0, Number(parsed?.pendingIncome ?? 0)) + offlineIncome),
-      lifetimeCollected: Math.max(0, Number(parsed?.lifetimeCollected ?? 0)),
-      farms,
-      eggInventory,
-      spawnerSlots,
-      nextEggHuntAt: Math.max(now, Number(parsed?.nextEggHuntAt ?? now)),
-      eggHunts: Math.max(0, Number(parsed?.eggHunts ?? 0)),
-      spawnerPowerLevel,
-      activeBoosts,
-      nextTreasureAt: Math.max(now, Number(parsed?.nextTreasureAt ?? now)),
-      treasureOpens: Math.max(0, Number(parsed?.treasureOpens ?? 0)),
-      lastUpdatedAt: now,
-    }
+    return buildHydratedState(parsed, fallback)
   } catch {
-    return {
-      ...fallback,
-      username: detectTelegramUsername() || DEFAULT_USERNAME,
-    }
+    return fallback
   }
 }
 
@@ -584,6 +581,7 @@ function App() {
   const [flights, setFlights] = useState([])
   const [toasts, setToasts] = useState([])
   const [celebrationFarm, setCelebrationFarm] = useState('')
+  const [cloudReady, setCloudReady] = useState(false)
   const balanceBadgeRef = useRef(null)
   const collectButtonRef = useRef(null)
   const treasureButtonRef = useRef(null)
@@ -593,6 +591,9 @@ function App() {
   const animatedBalance = useAnimatedValue(game.balance)
   const animatedPending = useAnimatedValue(game.pendingIncome)
   const now = game.lastUpdatedAt
+  const telegramUser = getTelegramUser()
+  const isTelegramSession = Boolean(telegramUser?.id && getCloudStorage())
+  const isAdmin = telegramUser?.id === ADMIN_TELEGRAM_ID
   const activeBoosts = sanitizeActiveBoosts(game.activeBoosts, now)
   const boostTotals = getBoostTotals(activeBoosts, now)
   const farmIncomePerSecond = getIncomePerSecond(game.farms)
@@ -744,7 +745,30 @@ function App() {
     const telegramApp = window.Telegram?.WebApp
     telegramApp?.ready()
     telegramApp?.expand()
-    setGame(hydrateState())
+    const cloudStorage = getCloudStorage()
+
+    if (!telegramApp || !cloudStorage || !getTelegramUser()?.id) {
+      setGame(hydrateState())
+      setCloudReady(true)
+      return
+    }
+
+    cloudStorage.getItem(CLOUD_STORAGE_KEY, (error, value) => {
+      if (error || !value) {
+        setGame(createDefaultStateForCurrentUser())
+        setCloudReady(true)
+        return
+      }
+
+      try {
+        const parsed = JSON.parse(value)
+        setGame(buildHydratedState(parsed, createDefaultStateForCurrentUser()))
+      } catch {
+        setGame(createDefaultStateForCurrentUser())
+      } finally {
+        setCloudReady(true)
+      }
+    })
   }, [])
 
   useEffect(() => {
@@ -767,8 +791,29 @@ function App() {
   }, [advanceEconomy])
 
   useEffect(() => {
-    window.localStorage.setItem(getStorageKey(), JSON.stringify(game))
-  }, [game])
+    if (!cloudReady) {
+      return
+    }
+
+    const payload = JSON.stringify(game)
+    window.localStorage.setItem(LOCAL_STORAGE_KEY, payload)
+
+    if (isTelegramSession) {
+      getCloudStorage()?.setItem(CLOUD_STORAGE_KEY, payload, () => {})
+    }
+  }, [cloudReady, game, isTelegramSession])
+
+  const handleResetCurrentProfile = () => {
+    const nextState = createDefaultStateForCurrentUser()
+
+    window.localStorage.removeItem(LOCAL_STORAGE_KEY)
+    if (isTelegramSession) {
+      getCloudStorage()?.removeItem(CLOUD_STORAGE_KEY, () => {})
+    }
+
+    setGame(nextState)
+    pushToast('Профиль сброшен', 'danger')
+  }
 
   const handleCollect = () => {
     if (collectDisabled) {
@@ -1121,6 +1166,30 @@ function App() {
           ))}
         </div>
       </header>
+
+      {isAdmin ? (
+        <section className="panel admin-panel">
+          <div className="admin-panel-head">
+            <div>
+              <span className="section-kicker">Админка</span>
+              <h2>Управление профилем</h2>
+            </div>
+            <span className="admin-badge">ID {ADMIN_TELEGRAM_ID}</span>
+          </div>
+
+          <div className="admin-actions">
+            <button className="admin-button admin-button-danger" onClick={handleResetCurrentProfile} type="button">
+              Сбросить мой профиль
+            </button>
+          </div>
+
+          <p className="admin-note">
+            Глобально удалить данные всех пользователей из Telegram Mini App нельзя без серверной базы.
+            В этом обновлении старые сохранения уже отключены новой версией ключа, а дальше у каждого
+            аккаунта свой профиль в Telegram CloudStorage.
+          </p>
+        </section>
+      ) : null}
 
       {showSystemsSection ? (
         <section
