@@ -65,8 +65,8 @@
 }
 
 .top-hud {
-  position: sticky;
-  top: 0;
+  position: relative;
+  top: auto;
   z-index: 40;
   display: grid;
   gap: 10px;
@@ -1014,16 +1014,23 @@
   .hud-brand,
   .profile-strip,
   .profile-stats-grid,
-  .spawner-slots,
-  .spawner-actions,
-  .egg-inventory,
-  .boosters-grid,
-  .booster-metrics,
   .active-buffs-grid {
     grid-template-columns: 1fr;
   }
 
   .hud-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .spawner-slots {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .spawner-actions,
+  .egg-inventory,
+  .boosters-grid,
+  .booster-metrics,
+  .shop-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -1044,7 +1051,6 @@
   }
 
   .top-hud {
-    top: 8px;
     gap: 10px;
     padding: 12px;
     margin-bottom: 14px;
@@ -1181,19 +1187,16 @@
     font-size: 0.7rem;
   }
 
-  .shop-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .spawner-actions {
-    grid-template-columns: 1fr;
-  }
-
-  .spawner-slots,
+  .shop-grid,
   .egg-inventory,
   .boosters-grid,
-  .booster-metrics {
-    grid-template-columns: 1fr;
+  .booster-metrics,
+  .spawner-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .spawner-slots {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .section-heading h2 {
@@ -1242,6 +1245,15 @@
   .hud-stat {
     min-height: 60px;
     padding: 10px 12px;
+  }
+
+  .shop-grid,
+  .egg-inventory,
+  .boosters-grid,
+  .booster-metrics,
+  .spawner-actions,
+  .spawner-slots {
+    grid-template-columns: 1fr;
   }
 
   .hud-tab {
