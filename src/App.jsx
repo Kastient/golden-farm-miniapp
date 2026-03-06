@@ -6,7 +6,7 @@ const TREASURE_COOLDOWN_SECONDS = 180
 const EGG_HUNT_COOLDOWN_SECONDS = 55
 const SPAWNER_SLOT_COUNT = 3
 const MAX_SPAWNER_POWER_LEVEL = 12
-const STORAGE_KEY = 'minecraft-farm-miniapp-v2'
+const STORAGE_NAMESPACE = 'minecraft-farm-miniapp-v2'
 const DEFAULT_USERNAME = 'UserName телеграмм'
 
 const CATEGORIES = [
@@ -449,12 +449,16 @@ const formatTimer = (seconds) => {
   return `${mm}:${ss}`
 }
 
-const detectTelegramUsername = () => {
+const getTelegramUser = () => {
   if (typeof window === 'undefined') {
-    return ''
+    return null
   }
 
-  const user = window.Telegram?.WebApp?.initDataUnsafe?.user
+  return window.Telegram?.WebApp?.initDataUnsafe?.user ?? null
+}
+
+const detectTelegramUsername = () => {
+  const user = getTelegramUser()
   if (!user) {
     return ''
   }
@@ -466,6 +470,19 @@ const detectTelegramUsername = () => {
   return [user.first_name, user.last_name].filter(Boolean).join(' ')
 }
 
+const getStorageKey = () => {
+  const user = getTelegramUser()
+  if (user?.id) {
+    return `${STORAGE_NAMESPACE}:tg:${user.id}`
+  }
+
+  if (user?.username) {
+    return `${STORAGE_NAMESPACE}:user:${String(user.username).toLowerCase()}`
+  }
+
+  return `${STORAGE_NAMESPACE}:local`
+}
+
 const hydrateState = () => {
   const fallback = createDefaultState()
 
@@ -474,13 +491,16 @@ const hydrateState = () => {
   }
 
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-      if (!raw) {
-        return {
-          ...fallback,
-          username: detectTelegramUsername() || DEFAULT_USERNAME,
-        }
+    const storageKey = getStorageKey()
+    const raw =
+      window.localStorage.getItem(storageKey) ?? window.localStorage.getItem(STORAGE_NAMESPACE)
+
+    if (!raw) {
+      return {
+        ...fallback,
+        username: detectTelegramUsername() || DEFAULT_USERNAME,
       }
+    }
 
     const parsed = JSON.parse(raw)
     const farms = createFarmState()
@@ -724,6 +744,7 @@ function App() {
     const telegramApp = window.Telegram?.WebApp
     telegramApp?.ready()
     telegramApp?.expand()
+    setGame(hydrateState())
   }, [])
 
   useEffect(() => {
@@ -746,7 +767,7 @@ function App() {
   }, [advanceEconomy])
 
   useEffect(() => {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(game))
+    window.localStorage.setItem(getStorageKey(), JSON.stringify(game))
   }, [game])
 
   const handleCollect = () => {
