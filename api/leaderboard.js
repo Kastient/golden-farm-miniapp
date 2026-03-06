@@ -1,7 +1,5 @@
-import { getSupabaseAdmin } from './_lib/supabase.js'
+import { withDatabase } from './_lib/sqlite.js'
 import { validateTelegramInitData } from './_lib/telegram.js'
-
-const TABLE_NAME = 'leaderboard_players'
 
 const sendJson = (response, statusCode, body) => {
   response.status(statusCode).setHeader('content-type', 'application/json; charset=utf-8')
@@ -18,25 +16,29 @@ const getDisplayName = (user) => {
 }
 
 export default async function handler(request, response) {
-  const supabase = getSupabaseAdmin()
-
-  if (!supabase) {
-    return sendJson(response, 503, { error: 'leaderboard_not_configured' })
-  }
-
   if (request.method === 'GET') {
-    const { data, error } = await supabase
-      .from(TABLE_NAME)
-      .select('telegram_id, username, coins')
-      .order('coins', { ascending: false })
-      .order('updated_at', { ascending: true })
-      .limit(5)
+    try {
+      const entries = await withDatabase(async (database) => {
+        const statement = database.prepare(`
+          select telegram_id, username, coins
+          from leaderboard_players
+          order by coins desc, updated_at asc
+          limit 5
+        `)
+        const rows = []
 
-    if (error) {
+        while (statement.step()) {
+          rows.push(statement.getAsObject())
+        }
+
+        statement.free()
+        return rows
+      })
+
+      return sendJson(response, 200, { entries })
+    } catch {
       return sendJson(response, 500, { error: 'leaderboard_fetch_failed' })
     }
-
-    return sendJson(response, 200, { entries: data ?? [] })
   }
 
   if (request.method !== 'POST') {
@@ -74,11 +76,43 @@ export default async function handler(request, response) {
     updated_at: new Date().toISOString(),
   }
 
-  const { error } = await supabase.from(TABLE_NAME).upsert(payload, {
-    onConflict: 'telegram_id',
-  })
-
-  if (error) {
+  try {
+    await withDatabase(async (database) => {
+      database.run(
+        `
+          insert into leaderboard_players (
+            telegram_id,
+            username,
+            coins,
+            lifetime_collected,
+            total_farms,
+            updated_at
+          ) values (
+            $telegram_id,
+            $username,
+            $coins,
+            $lifetime_collected,
+            $total_farms,
+            $updated_at
+          )
+          on conflict(telegram_id) do update set
+            username = excluded.username,
+            coins = excluded.coins,
+            lifetime_collected = excluded.lifetime_collected,
+            total_farms = excluded.total_farms,
+            updated_at = excluded.updated_at
+        `,
+        {
+          $telegram_id: payload.telegram_id,
+          $username: payload.username,
+          $coins: payload.coins,
+          $lifetime_collected: payload.lifetime_collected,
+          $total_farms: payload.total_farms,
+          $updated_at: payload.updated_at,
+        },
+      )
+    })
+  } catch {
     return sendJson(response, 500, { error: 'leaderboard_sync_failed' })
   }
 
