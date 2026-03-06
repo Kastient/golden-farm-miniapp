@@ -75,6 +75,61 @@ const FARM_CATALOG = [
     blurb: 'Крупный доход и самый сочный визуал.',
   },
   {
+    id: 'golden_wheat',
+    category: 'crops',
+    title: 'Ферма золотой пшеницы',
+    subtitle: 'Имперский урожай',
+    image: '/minecraft/wheat.png',
+    accent: '#f4d87a',
+    baseCost: 2650,
+    income: 55,
+    blurb: 'Улучшенная пшеница с дорогим, но ровным доходом.',
+  },
+  {
+    id: 'carrot_rush',
+    category: 'crops',
+    title: 'Ферма сочной моркови',
+    subtitle: 'Разгон сезона',
+    image: '/minecraft/carrot.png',
+    accent: '#ff9b4d',
+    baseCost: 3620,
+    income: 73,
+    blurb: 'Быстрый темп добычи для середины и конца игры.',
+  },
+  {
+    id: 'potato_cellar',
+    category: 'crops',
+    title: 'Подземная ферма картофеля',
+    subtitle: 'Тихий запас',
+    image: '/minecraft/potato.png',
+    accent: '#d7bd72',
+    baseCost: 4900,
+    income: 96,
+    blurb: 'Стабильная ферма с плотной экономикой без просадок.',
+  },
+  {
+    id: 'berry_estate',
+    category: 'crops',
+    title: 'Ягодное поместье',
+    subtitle: 'Редкий сорт',
+    image: '/minecraft/sweet_berries.png',
+    accent: '#ff5f87',
+    baseCost: 6600,
+    income: 128,
+    blurb: 'Редкие ягоды приносят жирный поток золота.',
+  },
+  {
+    id: 'melon_factory',
+    category: 'crops',
+    title: 'Арбузная фабрика',
+    subtitle: 'Конвейер урожая',
+    image: '/minecraft/melon_slice.png',
+    accent: '#75e27d',
+    baseCost: 8900,
+    income: 166,
+    blurb: 'Поздняя ферма для сильного рывка по монетам.',
+  },
+  {
     id: 'skeleton',
     category: 'mobs',
     title: 'Ферма скелетов',
@@ -150,6 +205,61 @@ const FARM_CATALOG = [
     baseCost: 3200,
     income: 61,
     blurb: 'Финальная моб-ферма с самым мощным ростом золота.',
+  },
+  {
+    id: 'bone_yard',
+    category: 'mobs',
+    title: 'Костяной двор',
+    subtitle: 'Сухой поток',
+    image: '/minecraft/bone.png',
+    accent: '#f1efe0',
+    baseCost: 4180,
+    income: 78,
+    blurb: 'Большой поток ресурсов от элитных скелетов.',
+  },
+  {
+    id: 'zombie_pit',
+    category: 'mobs',
+    title: 'Яма ходячих',
+    subtitle: 'Гнилой цех',
+    image: '/minecraft/rotten_flesh.png',
+    accent: '#8bc25e',
+    baseCost: 5600,
+    income: 104,
+    blurb: 'Орда зомби уверенно качает пассивный доход.',
+  },
+  {
+    id: 'slime_lab',
+    category: 'mobs',
+    title: 'Лаборатория слизней',
+    subtitle: 'Зелёный реактор',
+    image: '/minecraft/slime_ball.png',
+    accent: '#97f79c',
+    baseCost: 7600,
+    income: 137,
+    blurb: 'Редкая ферма с мощной прибавкой к доходу.',
+  },
+  {
+    id: 'spider_nest',
+    category: 'mobs',
+    title: 'Гнездо пауков',
+    subtitle: 'Тёмный рой',
+    image: '/minecraft/string.png',
+    accent: '#ccd6e4',
+    baseCost: 9800,
+    income: 176,
+    blurb: 'Высокий риск, но ещё более высокий поток монет.',
+  },
+  {
+    id: 'creeper_core',
+    category: 'mobs',
+    title: 'Реактор криперов',
+    subtitle: 'Взрывная элита',
+    image: '/minecraft/gunpowder.png',
+    accent: '#a9d55b',
+    baseCost: 12600,
+    income: 224,
+    blurb: 'Самая дорогая моб-ферма с максимальным выхлопом.',
   },
 ]
 
@@ -265,6 +375,54 @@ const SPAWNER_CATALOG = [
     income: 56,
     weight: 9,
     accent: '#8ccf52',
+  },
+  {
+    id: 'zombie_guard',
+    title: 'Яйцо зомби-стража',
+    icon: '/minecraft/egg_zombie.png',
+    income: 64,
+    weight: 8,
+    accent: '#6ab14a',
+  },
+  {
+    id: 'skeleton_archer',
+    title: 'Яйцо лучника-скелета',
+    icon: '/minecraft/egg_skeleton.png',
+    income: 74,
+    weight: 7,
+    accent: '#cfd7d7',
+  },
+  {
+    id: 'spider_alpha',
+    title: 'Яйцо альфа-паука',
+    icon: '/minecraft/egg_spider.png',
+    income: 85,
+    weight: 6,
+    accent: '#796498',
+  },
+  {
+    id: 'cow_elite',
+    title: 'Яйцо элитной коровы',
+    icon: '/minecraft/egg_cow.png',
+    income: 97,
+    weight: 5,
+    accent: '#c19275',
+  },
+  {
+    id: 'slime_king',
+    title: 'Яйцо короля слизней',
+    icon: '/minecraft/egg_slime.png',
+    income: 112,
+    weight: 4,
+    accent: '#7cf58a',
+  },
+  {
+    id: 'creeper_overlord',
+    title: 'Яйцо повелителя криперов',
+    icon: '/minecraft/egg_creeper.png',
+    income: 130,
+    weight: 3,
+    accent: '#9ddd50',
   },
 ]
 
@@ -582,6 +740,8 @@ function App() {
   const [toasts, setToasts] = useState([])
   const [celebrationFarm, setCelebrationFarm] = useState('')
   const [cloudReady, setCloudReady] = useState(false)
+  const [showAdminPanel, setShowAdminPanel] = useState(false)
+  const [showTopPanel, setShowTopPanel] = useState(false)
   const balanceBadgeRef = useRef(null)
   const collectButtonRef = useRef(null)
   const treasureButtonRef = useRef(null)
@@ -1078,6 +1238,23 @@ function App() {
     pushToast(`Яйцо возвращено в инвентарь`, 'gold')
   }
 
+  const handleDropEggFromInventory = (eggId) => {
+    if (!SPAWNERS_BY_ID[eggId] || (game.eggInventory[eggId] || 0) < 1) {
+      return
+    }
+
+    setGame((current) => ({
+      ...current,
+      eggInventory: {
+        ...current.eggInventory,
+        [eggId]: Math.max(0, (current.eggInventory[eggId] || 0) - 1),
+      },
+      lastUpdatedAt: Date.now(),
+    }))
+
+    pushToast(`Удалено: ${SPAWNERS_BY_ID[eggId].title}`, 'danger')
+  }
+
   const handleUpgradeSpawnerPower = () => {
     const upgradeCost = getSpawnerPowerUpgradeCost(game.spawnerPowerLevel)
     if (upgradeCost === null) {
@@ -1113,7 +1290,31 @@ function App() {
             <strong>Golden Farm</strong>
             <span className="hud-username">{profileName}</span>
           </div>
-          <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
+          <div className="hud-brand-actions">
+            <button
+              className={showTopPanel ? 'utility-entry is-active' : 'utility-entry'}
+              onClick={() => {
+                setShowTopPanel((current) => !current)
+                setShowAdminPanel(false)
+              }}
+              type="button"
+            >
+              Топы
+            </button>
+            {isAdmin ? (
+              <button
+                className={showAdminPanel ? 'utility-entry is-active' : 'utility-entry'}
+                onClick={() => {
+                  setShowAdminPanel((current) => !current)
+                  setShowTopPanel(false)
+                }}
+                type="button"
+              >
+                Админка
+              </button>
+            ) : null}
+            <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
+          </div>
         </div>
 
         <div className="hud-summary">
@@ -1167,7 +1368,24 @@ function App() {
         </div>
       </header>
 
-      {isAdmin ? (
+      {showTopPanel ? (
+        <section className="panel admin-panel">
+          <div className="admin-panel-head">
+            <div>
+              <span className="section-kicker">Топы</span>
+              <h2>Топ игроков</h2>
+            </div>
+            <span className="admin-badge">Скоро</span>
+          </div>
+
+          <div className="top-note">
+            Глобальный топ-5 по всем игрокам нельзя собрать без общей серверной базы. Сейчас Mini App
+            хранит профиль отдельно в Telegram CloudStorage и не видит балансы других пользователей.
+          </div>
+        </section>
+      ) : null}
+
+      {isAdmin && showAdminPanel ? (
         <section className="panel admin-panel">
           <div className="admin-panel-head">
             <div>
@@ -1292,13 +1510,26 @@ function App() {
                     </div>
                     <div className="egg-card-bottom">
                       <small>+{formatCoins(egg.income)}/сек базово</small>
-                      <button
-                        className={(game.eggInventory[egg.id] || 0) < 1 ? 'is-disabled' : ''}
-                        onClick={() => handleInsertEggToSpawner(egg.id)}
-                        type="button"
-                      >
-                        В спавнер
-                      </button>
+                      <div className="egg-card-actions">
+                        <button
+                          className={(game.eggInventory[egg.id] || 0) < 1 ? 'is-disabled' : ''}
+                          onClick={() => handleInsertEggToSpawner(egg.id)}
+                          type="button"
+                        >
+                          В спавнер
+                        </button>
+                        <button
+                          className={
+                            (game.eggInventory[egg.id] || 0) < 1
+                              ? 'egg-delete-button is-disabled'
+                              : 'egg-delete-button'
+                          }
+                          onClick={() => handleDropEggFromInventory(egg.id)}
+                          type="button"
+                        >
+                          Удалить
+                        </button>
+                      </div>
                     </div>
                   </article>
                 ))}
