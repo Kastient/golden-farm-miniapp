@@ -1,11 +1,13 @@
 import { startTransition, useEffect, useEffectEvent, useRef, useState } from 'react'
 import './App.css'
+import { fetchLeaderboard, syncLeaderboard } from './leaderboard'
 
 const MAX_FARMS_PER_TYPE = 10
 const TREASURE_COOLDOWN_SECONDS = 180
 const EGG_HUNT_COOLDOWN_SECONDS = 55
 const SPAWNER_SLOT_COUNT = 3
 const MAX_SPAWNER_POWER_LEVEL = 12
+const LEADERBOARD_SYNC_DELAY_MS = 1200
 const LOCAL_STORAGE_KEY = 'golden-farm-local-v3'
 const CLOUD_STORAGE_KEY = 'golden_farm_state_v3'
 const ADMIN_TELEGRAM_ID = 6037580694
@@ -622,6 +624,14 @@ const getTelegramUser = () => {
   return window.Telegram?.WebApp?.initDataUnsafe?.user ?? null
 }
 
+const getTelegramInitData = () => {
+  if (typeof window === 'undefined') {
+    return ''
+  }
+
+  return window.Telegram?.WebApp?.initData || ''
+}
+
 const detectTelegramUsername = () => {
   const user = getTelegramUser()
   if (!user) {
@@ -742,6 +752,9 @@ function App() {
   const [cloudReady, setCloudReady] = useState(false)
   const [showAdminPanel, setShowAdminPanel] = useState(false)
   const [showTopPanel, setShowTopPanel] = useState(false)
+  const [leaderboardEntries, setLeaderboardEntries] = useState([])
+  const [leaderboardState, setLeaderboardState] = useState('idle')
+  const [leaderboardMessage, setLeaderboardMessage] = useState('')
   const balanceBadgeRef = useRef(null)
   const collectButtonRef = useRef(null)
   const treasureButtonRef = useRef(null)
@@ -752,6 +765,7 @@ function App() {
   const animatedPending = useAnimatedValue(game.pendingIncome)
   const now = game.lastUpdatedAt
   const telegramUser = getTelegramUser()
+  const telegramInitData = getTelegramInitData()
   const isTelegramSession = Boolean(telegramUser?.id && getCloudStorage())
   const isAdmin = telegramUser?.id === ADMIN_TELEGRAM_ID
   const activeBoosts = sanitizeActiveBoosts(game.activeBoosts, now)
@@ -962,6 +976,73 @@ function App() {
       getCloudStorage()?.setItem(CLOUD_STORAGE_KEY, payload, () => {})
     }
   }, [cloudReady, game, isTelegramSession])
+
+  useEffect(() => {
+    if (!cloudReady || !telegramUser?.id || !telegramInitData) {
+      return
+    }
+
+    const timerId = window.setTimeout(() => {
+      syncLeaderboard({
+        initData: telegramInitData,
+        balance: roundToTenth(game.balance),
+        lifetimeCollected: roundToTenth(game.lifetimeCollected),
+        totalFarms,
+      }).catch(() => {})
+    }, LEADERBOARD_SYNC_DELAY_MS)
+
+    return () => {
+      window.clearTimeout(timerId)
+    }
+  }, [
+    cloudReady,
+    telegramInitData,
+    telegramUser?.id,
+    game.balance,
+    game.lifetimeCollected,
+    totalFarms,
+  ])
+
+  useEffect(() => {
+    if (!showTopPanel) {
+      return
+    }
+
+    let cancelled = false
+    setLeaderboardState('loading')
+    setLeaderboardMessage('')
+
+    fetchLeaderboard()
+      .then((payload) => {
+        if (cancelled) {
+          return
+        }
+
+        const entries = Array.isArray(payload?.entries) ? payload.entries : []
+        setLeaderboardEntries(entries)
+        setLeaderboardState('ready')
+        if (!entries.length) {
+          setLeaderboardMessage('Пока нет игроков в топе.')
+        }
+      })
+      .catch((error) => {
+        if (cancelled) {
+          return
+        }
+
+        setLeaderboardEntries([])
+        setLeaderboardState('error')
+        setLeaderboardMessage(
+          error.message === 'leaderboard_not_configured'
+            ? 'Топы ещё не подключены к общей базе.'
+            : 'Не удалось загрузить топ игроков.',
+        )
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [showTopPanel])
 
   const handleResetCurrentProfile = () => {
     const nextState = createDefaultStateForCurrentUser()
@@ -1290,31 +1371,7 @@ function App() {
             <strong>Golden Farm</strong>
             <span className="hud-username">{profileName}</span>
           </div>
-          <div className="hud-brand-actions">
-            <button
-              className={showTopPanel ? 'utility-entry is-active' : 'utility-entry'}
-              onClick={() => {
-                setShowTopPanel((current) => !current)
-                setShowAdminPanel(false)
-              }}
-              type="button"
-            >
-              Топы
-            </button>
-            {isAdmin ? (
-              <button
-                className={showAdminPanel ? 'utility-entry is-active' : 'utility-entry'}
-                onClick={() => {
-                  setShowAdminPanel((current) => !current)
-                  setShowTopPanel(false)
-                }}
-                type="button"
-              >
-                Админка
-              </button>
-            ) : null}
-            <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
-          </div>
+          <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
         </div>
 
         <div className="hud-summary">
@@ -1352,6 +1409,31 @@ function App() {
           </button>
         </div>
 
+        <div className="hud-tools">
+          <button
+            className={showTopPanel ? 'utility-entry is-active' : 'utility-entry'}
+            onClick={() => {
+              setShowTopPanel((current) => !current)
+              setShowAdminPanel(false)
+            }}
+            type="button"
+          >
+            Топы
+          </button>
+          {isAdmin ? (
+            <button
+              className={showAdminPanel ? 'utility-entry is-active' : 'utility-entry'}
+              onClick={() => {
+                setShowAdminPanel((current) => !current)
+                setShowTopPanel(false)
+              }}
+              type="button"
+            >
+              Админка
+            </button>
+          ) : null}
+        </div>
+
         <div className="hud-tabs">
           {categoryStats.map((category) => (
             <button
@@ -1375,13 +1457,27 @@ function App() {
               <span className="section-kicker">Топы</span>
               <h2>Топ игроков</h2>
             </div>
-            <span className="admin-badge">Скоро</span>
+            <span className="admin-badge">TOP 5</span>
           </div>
 
-          <div className="top-note">
-            Глобальный топ-5 по всем игрокам нельзя собрать без общей серверной базы. Сейчас Mini App
-            хранит профиль отдельно в Telegram CloudStorage и не видит балансы других пользователей.
-          </div>
+          {leaderboardState === 'loading' ? <div className="top-note">Загрузка топа...</div> : null}
+          {leaderboardState === 'error' ? <div className="top-note">{leaderboardMessage}</div> : null}
+          {leaderboardState === 'ready' && leaderboardEntries.length ? (
+            <div className="leaderboard-list">
+              {leaderboardEntries.map((entry, index) => (
+                <article className="leaderboard-row" key={entry.telegram_id}>
+                  <span className="leaderboard-place">#{index + 1}</span>
+                  <div className="leaderboard-player">
+                    <strong>{entry.username || 'UserName телеграмм'}</strong>
+                    <span>{formatCoins(Number(entry.coins ?? 0))} монет</span>
+                  </div>
+                </article>
+              ))}
+            </div>
+          ) : null}
+          {leaderboardState === 'ready' && !leaderboardEntries.length ? (
+            <div className="top-note">{leaderboardMessage}</div>
+          ) : null}
         </section>
       ) : null}
 
