@@ -582,7 +582,6 @@ function App() {
   const [toasts, setToasts] = useState([])
   const [celebrationFarm, setCelebrationFarm] = useState('')
   const [cloudReady, setCloudReady] = useState(false)
-  const [showAdminPanel, setShowAdminPanel] = useState(false)
   const balanceBadgeRef = useRef(null)
   const collectButtonRef = useRef(null)
   const treasureButtonRef = useRef(null)
@@ -1114,18 +1113,7 @@ function App() {
             <strong>Golden Farm</strong>
             <span className="hud-username">{profileName}</span>
           </div>
-          <div className="hud-brand-actions">
-            {isAdmin ? (
-              <button
-                className={showAdminPanel ? 'admin-entry is-active' : 'admin-entry'}
-                onClick={() => setShowAdminPanel((current) => !current)}
-                type="button"
-              >
-                Админ
-              </button>
-            ) : null}
-            <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
-          </div>
+          <span className="hud-rank">{getRank(game.lifetimeCollected)}</span>
         </div>
 
         <div className="hud-summary">
@@ -1179,7 +1167,7 @@ function App() {
         </div>
       </header>
 
-      {isAdmin && showAdminPanel ? (
+      {isAdmin ? (
         <section className="panel admin-panel">
           <div className="admin-panel-head">
             <div>
@@ -1194,12 +1182,6 @@ function App() {
               Сбросить мой профиль
             </button>
           </div>
-
-          <p className="admin-note">
-            Глобально удалить данные всех пользователей из Telegram Mini App нельзя без серверной базы.
-            В этом обновлении старые сохранения уже отключены новой версией ключа, а дальше у каждого
-            аккаунта свой профиль в Telegram CloudStorage.
-          </p>
         </section>
       ) : null}
 
