@@ -1033,14 +1033,16 @@
 
 @media (max-width: 680px) {
   .app-shell {
-    width: min(100%, calc(100% - 12px));
-    padding-bottom: 48px;
+    width: 100%;
+    padding: 8px 6px 40px;
   }
 
   .top-hud {
     top: 8px;
-    gap: 12px;
-    padding: 14px;
+    gap: 10px;
+    padding: 12px;
+    margin-bottom: 14px;
+    border-radius: 20px;
   }
 
   .eyebrow,
@@ -1058,95 +1060,103 @@
     width: 14px;
   }
 
+  .hud-brand-title .eyebrow {
+    display: none;
+  }
+
   .hud-brand {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: start;
-    gap: 10px;
+    gap: 8px;
   }
 
   .hud-brand-title {
-    gap: 4px;
+    gap: 2px;
   }
 
   .hud-brand-title strong {
     max-width: none;
-    font-size: clamp(2rem, 9vw, 2.7rem);
-    line-height: 0.92;
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
+    line-height: 0.96;
   }
 
   .hud-username {
-    font-size: 0.84rem;
+    font-size: 0.72rem;
   }
 
   .hud-rank {
-    min-height: 34px;
-    max-width: 120px;
-    padding: 6px 12px;
+    min-height: 28px;
+    max-width: 104px;
+    padding: 4px 10px;
     white-space: normal;
     text-align: center;
-    font-size: 0.74rem;
+    font-size: 0.66rem;
     justify-content: center;
   }
 
   .hud-summary {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 10px;
+    gap: 8px;
   }
 
   .hud-balance-card {
     grid-column: 1 / -1;
-    min-height: 88px;
-    padding: 14px 16px;
+    min-height: 72px;
+    padding: 12px 14px;
+    border-radius: 18px;
   }
 
   .hud-balance-card img {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
 
   .hud-balance-card strong {
-    font-size: 2rem;
+    font-size: 1.7rem;
   }
 
   .hud-stat {
-    min-height: 82px;
-    padding: 14px;
-    gap: 4px;
+    min-height: 66px;
+    padding: 12px;
+    gap: 2px;
+    border-radius: 18px;
   }
 
   .hud-stat span {
-    font-size: 0.82rem;
-    line-height: 1.15;
+    font-size: 0.76rem;
+    line-height: 1.05;
   }
 
   .hud-stat strong {
-    font-size: 1.2rem;
+    font-size: 1rem;
   }
 
   .hud-collect {
     grid-column: 1 / -1;
     width: 100%;
     min-width: 0;
-    min-height: 72px;
-    font-size: 1rem;
+    min-height: 56px;
+    font-size: 0.92rem;
+    border-radius: 18px;
   }
 
   .hud-collect img {
-    width: 28px;
-    height: 28px;
+    width: 22px;
+    height: 22px;
   }
 
   .hud-tabs {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
   }
 
   .hud-tab {
-    min-height: 56px;
-    padding: 0 14px;
-    gap: 8px;
-    font-size: 0.92rem;
+    min-height: 50px;
+    padding: 0 12px;
+    gap: 6px;
+    border-radius: 16px;
+    font-size: 0.8rem;
   }
 
   .hud-tab span {
@@ -1154,14 +1164,15 @@
   }
 
   .hud-tab img {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
   }
 
   .hud-tab b {
-    min-width: 28px;
-    height: 28px;
-    font-size: 0.78rem;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    font-size: 0.7rem;
   }
 
   .shop-grid {
@@ -1185,24 +1196,23 @@
 
   .system-panel,
   .shop-panel {
-    padding: 16px;
+    padding: 14px;
+    border-radius: 20px;
   }
 
   .treasure-button,
   .hud-collect {
-    min-height: 64px;
+    min-height: 56px;
   }
 }
 
 @media (max-width: 420px) {
   .app-shell {
-    width: min(100%, calc(100% - 8px));
-    padding-top: 8px;
+    padding: 6px 4px 36px;
   }
 
   .top-hud {
-    border-radius: 20px;
-    padding: 12px;
+    padding: 10px;
   }
 
   .hud-brand {
@@ -1215,22 +1225,22 @@
   }
 
   .hud-summary {
-    gap: 8px;
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
 
-  .hud-balance-card,
-  .hud-stat {
-    border-radius: 18px;
+  .hud-balance-card {
+    min-height: 68px;
   }
 
   .hud-stat {
-    min-height: 76px;
-    padding: 12px;
+    min-height: 60px;
+    padding: 10px 12px;
   }
 
   .hud-tab {
-    min-height: 54px;
-    padding: 0 12px;
-    font-size: 0.86rem;
+    min-height: 48px;
+    padding: 0 10px;
+    font-size: 0.76rem;
   }
 }
