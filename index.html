@@ -1,17 +1,106 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="Golden Farm — мини-игра про фермы, доход и красивые анимации для Telegram Mini App."
-    />
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <title>Golden Farm Mini App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="KonM Moderation Mini App для управления Telegram-ботом через удобную веб-панель.">
+  <title>KonM Moderation Mini App</title>
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div id="mobileOverlay" class="mobile-overlay hidden"></div>
+
+  <div class="layout-shell">
+    <aside id="sidebar" class="sidebar">
+      <div class="brand-block">
+        <div class="brand-logo">KM</div>
+        <div>
+          <p class="brand-kicker">Mini App Moderation</p>
+          <h1 class="brand-title">KONM.IO</h1>
+        </div>
+      </div>
+
+      <section id="homeSidebar" class="sidebar-card sidebar-card-grow">
+        <div class="sidebar-head">
+          <h2>Главная</h2>
+          <span class="sidebar-badge">обычный режим</span>
+        </div>
+        <div id="homeSidebarContent" class="meta-stack"></div>
+      </section>
+
+      <div id="adminSidebar" class="hidden">
+        <nav id="sideNav" class="side-nav">
+          <button class="nav-item active" data-nav="overview" type="button">Обзор</button>
+          <button class="nav-item" data-nav="security" type="button">Безопасность</button>
+          <button class="nav-item" data-nav="roles" type="button">Роли и права</button>
+          <button class="nav-item" data-nav="commands" type="button">Команды</button>
+          <button class="nav-item" data-nav="rules" type="button">Правила</button>
+        </nav>
+
+        <section class="sidebar-card">
+          <div class="sidebar-head">
+            <h2>Система</h2>
+            <button id="refreshDashboard" class="ghost-button" type="button">Обновить</button>
+          </div>
+          <div id="metaBlock" class="meta-stack"></div>
+        </section>
+
+        <section class="sidebar-card sidebar-card-grow">
+          <div class="sidebar-head">
+            <h2>Редактируемые чаты</h2>
+            <span class="sidebar-badge">admin</span>
+          </div>
+          <input id="chatSearch" class="search-input" type="search" placeholder="Найти чат">
+          <div id="chatList" class="chat-list custom-scroll"></div>
+        </section>
+      </div>
+    </aside>
+
+    <main class="main-area custom-scroll">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button id="openSidebar" class="icon-button mobile-only" type="button" aria-label="Открыть меню"></button>
+          <div>
+            <p class="brand-kicker">Telegram Bot Management System</p>
+            <h2 id="heroTitle" class="page-title">Загрузка...</h2>
+            <p id="heroSubtitle" class="page-subtitle">Подтягиваю настройки и список чатов.</p>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <button id="adminModeToggle" class="accent-button mode-toggle-button" type="button">Админка</button>
+          <button id="saveGlobalAccess" class="ghost-button hidden" type="button">Сохранить доступ</button>
+          <div class="avatar-badge">KM</div>
+        </div>
+      </header>
+
+      <section id="toast" class="toast hidden"></section>
+
+      <div id="loadingState" class="empty-state">
+        <h3>Подготовка интерфейса</h3>
+        <p>Загружаю базу, чаты и реальные настройки модерации.</p>
+      </div>
+
+      <div id="appContent" class="content-stack hidden">
+        <section id="panel-overview" class="view-panel"></section>
+        <section id="panel-security" class="view-panel hidden"></section>
+        <section id="panel-roles" class="view-panel hidden"></section>
+        <section id="panel-commands" class="view-panel hidden"></section>
+        <section id="panel-rules" class="view-panel hidden"></section>
+      </div>
+    </main>
+  </div>
+
+  <nav id="mobileNav" class="mobile-nav hidden">
+    <button class="mobile-tab active" data-nav="overview" type="button" aria-label="Обзор"></button>
+    <button class="mobile-tab" data-nav="security" type="button" aria-label="Безопасность"></button>
+    <button class="mobile-tab" data-nav="roles" type="button" aria-label="Роли и права"></button>
+    <button class="mobile-tab" data-nav="commands" type="button" aria-label="Команды"></button>
+    <button class="mobile-tab" data-nav="rules" type="button" aria-label="Правила"></button>
+  </nav>
+
+  <script src="./config.js"></script>
+  <script src="./app.js" defer></script>
+</body>
 </html>

@@ -1,16 +1,27 @@
-# React + Vite
+# KonM Moderation Mini App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Этот репозиторий теперь хранит статический фронт Mini App для модерационного бота.
 
-Currently, two official plugins are available:
+## Как это работает
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- `index.html`, `styles.css`, `app.js` — готовый сайт для GitHub Pages.
+- `config.js` задает адрес API.
+- Если сайт открыт локально вместе с Python-сервером, `config.js` можно оставить пустым.
+- Если сайт открыт с GitHub Pages, в `config.js` нужно указать URL бекенда, например:
 
-## React Compiler
+```js
+window.__KONM_API_BASE__ = "https://your-miniapp-backend.example.com";
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Что заливать на GitHub
 
-## Expanding the ESLint configuration
+В репозитории уже лежит готовая статика. Дальше логика простая:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+1. Коммитишь изменения.
+2. Пушишь в ветку `main`.
+3. В GitHub Pages выбираешь публикацию из `main` и корня репозитория.
+
+## Важно
+
+GitHub Pages не запускает Python и не обслуживает `/api`.
+Поэтому для реальной работы Mini App нужен отдельно поднятый бекенд с API бота.
